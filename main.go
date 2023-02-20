@@ -120,8 +120,9 @@ func main() {
 	lru.Set(5, 6)
 	lru.Set(9, 10)
 	lru.Set(8, 9)
+	lru.Set(3, 7)
 
-	fmt.Println(lru.Get(4))
+	fmt.Println(lru.Get(3))
 	// fmt.Println(len(lru.keyStore))
 
 	lru.PrintLRU()
@@ -143,7 +144,7 @@ func (c *LRU) Get(key int) []int {
 func (c *LRU) PrintLRU() {
 	size := c.cacheList.len - 1
 	for e := c.cacheList.Front(); e != nil && size > 0; e = e.Next() {
-		fmt.Println(e.value)
+		fmt.Println(e.value, " -> ", c.valuesStore[e.value])
 		size--
 	}
 }
@@ -168,6 +169,7 @@ func (c *LRU) Set(key, value int) {
 	} else {
 		// elementPointer := c.keyStore[key]
 		c.cacheList.MoveToFront(elementPointer)
+		c.keyStore[key] = c.cacheList.head
 		c.valuesStore[key] = append(c.valuesStore[key], value)
 	}
 }
