@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// LRU is a structure of LRU cache
 type LRU struct {
 	keyStore    map[int]*Node
 	valuesStore map[int][]int
@@ -11,34 +12,41 @@ type LRU struct {
 	capacity    int
 }
 
+// Node is structure of single element of doubly linkedlist
 type Node struct {
 	value int
 	next  *Node
 	prev  *Node
 }
 
+// List is a structure of List
 type List struct {
 	len  int
 	head *Node
 	tail *Node
 }
 
+// initList initialise the doubly linked List
 func initList() *List {
 	return &List{}
 }
 
+// Front returns the first node of the list
 func (l *List) Front() *Node {
 	return l.head
 }
 
+// Next return the next node of the node
 func (N *Node) Next() *Node {
 	return N.next
 }
 
+// Back return node at the end of the list
 func (l *List) Back() *Node {
 	return l.tail
 }
 
+// PushFront push the new node with given data at the front of the list
 func (l *List) PushFront(data int) {
 	if l.head == nil {
 		newNode := &Node{
@@ -59,45 +67,58 @@ func (l *List) PushFront(data int) {
 	l.len++
 }
 
-func (l *List) PushBack(data int) {
-	if l.head == nil {
-		newNode := &Node{
-			value: data,
-		}
-		l.head = newNode
-		l.tail = newNode
-	} else {
-		newNode := &Node{
-			value: data,
-		}
-		l.tail.next = newNode
-		newNode.prev = l.tail
-		l.head.prev = newNode
-		newNode.next = l.head
-		l.tail = newNode
-	}
-	l.len++
-}
+// PushPack push the new node at the end of the list
+// func (l *List) PushBack(data int) {
+// 	if l.head == nil {
+// 		newNode := &Node{
+// 			value: data,
+// 		}
+// 		l.head = newNode
+// 		l.tail = newNode
+// 	} else {
+// 		newNode := &Node{
+// 			value: data,
+// 		}
+// 		l.tail.next = newNode
+// 		newNode.prev = l.tail
+// 		l.head.prev = newNode
+// 		newNode.next = l.head
+// 		l.tail = newNode
+// 	}
+// 	l.len++
+// }
 
+// MoveFront shift ptr node in the list to the front of the doubly linkedlist
 func (l *List) MoveToFront(ptr *Node) {
 	if ptr == l.head {
 		return
 	} else if ptr == l.tail {
 		l.tail = ptr.prev
+		// removing ptr pointer
 		ptr.prev.next = ptr.next
 		ptr.next.prev = ptr.prev
-		ptr.next = nil
-		ptr.prev = nil
-		l.PushFront(ptr.value)
+
+		// adding ptr pointer in front
+		ptr.next = l.head
+		l.head.prev = ptr
+		l.head = ptr
+		l.tail.next = l.head
+		l.head.prev = l.tail
 	} else {
+		// removing ptr pointer
 		ptr.prev.next = ptr.next
 		ptr.next.prev = ptr.prev
-		ptr.next = nil
-		ptr.prev = nil
-		l.PushFront(ptr.value)
+
+		// adding ptr pointer in front
+		ptr.next = l.head
+		l.head.prev = ptr
+		l.head = ptr
+		l.tail.next = l.head
+		l.head.prev = l.tail
 	}
 }
 
+// PopBack remove the last node of the list
 func (l *List) PopBack(ptr *Node) {
 	l.tail = ptr.prev
 	ptr.prev.next = ptr.next
@@ -121,10 +142,9 @@ func main() {
 	lru.Set(9, 10)
 	lru.Set(8, 9)
 	lru.Set(3, 7)
+	lru.Set(7, 8)
 
 	fmt.Println(lru.Get(3))
-	// fmt.Println(len(lru.keyStore))
-
 	lru.PrintLRU()
 }
 
@@ -133,16 +153,14 @@ func (c *LRU) Get(key int) []int {
 	if !ok {
 		return []int{-1}
 	} else {
-		// elementPointer := c.keyStore[key]
-		// key := c.keyStore[key].value
-
 		c.cacheList.MoveToFront(elementPointers)
+		c.keyStore[key] = c.cacheList.head
 		return c.valuesStore[key]
 	}
 }
 
 func (c *LRU) PrintLRU() {
-	size := c.cacheList.len - 1
+	size := c.cacheList.len
 	for e := c.cacheList.Front(); e != nil && size > 0; e = e.Next() {
 		fmt.Println(e.value, " -> ", c.valuesStore[e.value])
 		size--
